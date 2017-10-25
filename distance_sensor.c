@@ -18,7 +18,7 @@ void distance_sensor_init() {
 	gpio_enable_interrupt_rising_edge(ECHOPIN);//enable interrupt to act when receiving pulse
 }
 
-uint16_t get_distance_cm() {
+uint16_t distance_sensor_get_distance_cm() {
 	return distance;
 }
 
@@ -46,11 +46,12 @@ void TIMER0_IRQHandler(void) {
 }
 
 void EINT3_IRQHandler(void) {
+	uint32_t duration = LPC_TIM0->TC;
+	calculate_distance_out_of_duration(duration);
 
-	switch(measure_state) {
+}
 
-		case 0 :
-			LPC_TIM0->IR = 1;
-			gpio_clear(TRIGPIN);
-	}
+void calculate_distance_out_of_duration(uint32_t duration) {
+	const uint16_t WAVE_SPEED = 340; // meter/second
+	distance = WAVE_SPEED * (duration / 2);
 }
