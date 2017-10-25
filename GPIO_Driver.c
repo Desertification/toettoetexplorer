@@ -26,11 +26,11 @@ static const uint8_t mbed_pin_to_port_lookup[31] = {
 	130, 131, 205, 204, 203, 202, 201, 200, 11, 10, 5, 4 //pin 19-30
 };
 
-void GPIO_init(uint8_t pin) {
+void gpio_init(uint8_t pin) {
 	if ( is_pin_valid(pin) ) {
-		set_mode(pin, 0);
-		set_direction(pin, 1);
-		clear(pin);
+		gpio_set_mode(pin, GPIO_PINMODE_PULLUP);
+		gpio_set_direction(pin, GPIO_PINDIRECTION_OUTPUT);
+		gpio_clear(pin);
 	}
 }
 
@@ -40,7 +40,7 @@ void GPIO_init(uint8_t pin) {
  * 2 = neither pull-up or pull-down
  * 3 = pull-down
  */
-void set_mode(uint8_t pin, uint8_t mode) {
+void gpio_set_mode(uint8_t pin, uint8_t mode) {
 	if ( is_pin_valid(pin) ) {
 		uint8_t shift;
 		if ( port_index(pin) >= 0 && port_index(pin) < 16 ) {
@@ -54,7 +54,7 @@ void set_mode(uint8_t pin, uint8_t mode) {
 	}
 }
 
-uint8_t get_mode(uint8_t pin) {
+uint8_t gpio_get_mode(uint8_t pin) {
 	if ( is_pin_valid(pin) ) {
 		uint8_t shift;
 		if ( port_index(pin) >= 0 && port_index(pin) < 16 ) {
@@ -69,7 +69,7 @@ uint8_t get_mode(uint8_t pin) {
 
 //0 is input
 //1 is output
-void set_direction(uint8_t pin, uint8_t direction) {
+void gpio_set_direction(uint8_t pin, uint8_t direction) {
 	if ( is_pin_valid(pin) ) {
 		if ( direction ) {
 			select_LPC_GPIO(pin)->FIODIR |= 1 << port_index(pin);
@@ -80,36 +80,43 @@ void set_direction(uint8_t pin, uint8_t direction) {
 	}
 }
 
-uint8_t get_direction(uint8_t pin) {
+uint8_t gpio_get_direction(uint8_t pin) {
 	if ( is_pin_valid(pin) ) {
 		return (select_LPC_GPIO(pin)->FIODIR >> port_index(pin)) & 1;
 	}
 }
 
-void set(uint8_t pin) {
+void gpio_set(uint8_t pin) {
 	if ( is_pin_valid(pin) && is_pin_output(pin) ) {
 		select_LPC_GPIO(pin)->FIOSET |= 1 << port_index(pin);
 	}
 }
 
-void clear(uint8_t pin) {
+void gpio_clear(uint8_t pin) {
 	if ( is_pin_valid(pin) && is_pin_output(pin) ) {
 		select_LPC_GPIO(pin)->FIOCLR |= 1 << port_index(pin);
 	}
 }
 
-void toggle(uint8_t pin) {
+void gpio_toggle(uint8_t pin) {
 	if ( is_pin_valid(pin) ) {
-		uint8_t current = read(pin);
-		if (current) { clear(pin); }
+		uint8_t current = gpio_read(pin);
+		if (current) { gpio_clear(pin); }
 
-		else { set(pin); }
+		else { gpio_set(pin); }
 	}
 }
 
-uint8_t read(uint8_t pin) {
+uint8_t gpio_read(uint8_t pin) {
 	if ( is_pin_valid(pin) ) {
 		return select_LPC_GPIO(pin)->FIOPIN >>  port_index(pin) & 1;
+	}
+}
+
+void gpio_enable_interrupt_rising_edge(uint8_t pin) {
+	uint8_t port = mbed_pin_to_port_lookup[pin];
+	if ( port >= 0 && port < 100) {
+		LPC_GPIOINT->IO0IntEnR |= 1 << port_index(pin);
 	}
 }
 
