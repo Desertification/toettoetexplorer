@@ -8,7 +8,11 @@
 #ifndef DISTANCE_SENSOR_H_
 #define DISTANCE_SENSOR_H_
 
-#include "GPIO_Driver.h"
+#include "gpio.h"
+
+//pinnames
+const uint8_t TRIGPIN = 21;
+const uint8_t ECHOPIN = 10;
 
 uint16_t distance;
 
