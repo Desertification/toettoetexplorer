@@ -22,7 +22,6 @@ static volatile uint32_t *match_lut[] = { // match register lookup table
 
 static uint8_t is_pin_valid(uint8_t pin);
 static uint8_t pin_to_index(uint8_t pin);
-static uint8_t limit_percentage(uint8_t percentage);
 
 static void config_pinsel_pwm(uint8_t pin);
 static void config_power_ctrl_pwm();
@@ -79,13 +78,13 @@ uint32_t pwm_get_frequency(){
  * set the duty cycle of the pwm for that pin
  *
  * @param pin pin of the mbed (21-26)
- * @param value percentage (0-100)
+ * @param value percentage (0-255)
  */
 void pwm_set_duty_cycle(uint8_t pin, uint8_t value){
 	if (is_pin_valid(pin)){
-		value = limit_percentage(value);
 		uint8_t index = pin_to_index(pin);
-		uint32_t match_value = (pclk_freq * value) / (pwm_get_frequency() * 100);
+		double percentage = value/255.0;
+		uint32_t match_value = ((pclk_freq * percentage) / pwm_get_frequency());
 		*match_lut[index] = match_value;
 		load_new_duty_cycle(pin);
 	}
@@ -95,13 +94,13 @@ void pwm_set_duty_cycle(uint8_t pin, uint8_t value){
  * get the duty cycle of the pwm for that pin
  *
  * @param pin of the mbed (21-26)
- * @return percentage (0-100)
+ * @return percentage (0-255)
  */
 uint8_t pwm_get_duty_cycle(uint8_t pin){
 	if (is_pin_valid(pin)){
 		uint8_t index = pin_to_index(pin);
 		uint32_t match_value = *match_lut[index];
-		return (match_value * pwm_get_frequency() * 100) / pclk_freq;
+		return (uint32_t) ((match_value * pwm_get_frequency() * 255.0) / pclk_freq);
 	} else {
 		return 0;
 	}
@@ -135,13 +134,6 @@ static uint8_t pin_to_index(uint8_t pin){
 		default:
 			return 0; // error
 	}
-}
-
-static uint8_t limit_percentage(uint8_t percentage){
-	if (percentage > 100){
-		return 100;
-	}
-	return percentage;
 }
 
 /**

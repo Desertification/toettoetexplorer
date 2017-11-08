@@ -35,7 +35,7 @@ uint32_t pwm_get_frequency();
  * set the duty cycle of the pwm for that pin
  *
  * @param pin pin of the mbed (21-26)
- * @param value percentage (0-100)
+ * @param value percentage (0-255)
  */
 void pwm_set_duty_cycle(uint8_t pin, uint8_t value);
 
@@ -43,7 +43,7 @@ void pwm_set_duty_cycle(uint8_t pin, uint8_t value);
  * get the duty cycle of the pwm for that pin
  *
  * @param pin of the mbed (21-26)
- * @return percentage (0-100)
+ * @return percentage (0-255)
  */
 uint8_t pwm_get_duty_cycle(uint8_t pin);
 
