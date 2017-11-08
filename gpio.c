@@ -78,6 +78,7 @@ uint8_t gpio_get_mode(uint8_t pin) {
 		}
 		return *select_PINMODE(pin) >> shift & 1;
 	}
+	return 255;
 }
 
 //0 is input
@@ -97,6 +98,7 @@ uint8_t gpio_get_direction(uint8_t pin) {
 	if ( is_pin_valid(pin) ) {
 		return (select_LPC_GPIO(pin)->FIODIR >> port_index(pin)) & 1;
 	}
+	return 255;
 }
 
 void gpio_set(uint8_t pin) {
@@ -124,6 +126,7 @@ uint8_t gpio_read(uint8_t pin) {
 	if ( is_pin_valid(pin) ) {
 		return select_LPC_GPIO(pin)->FIOPIN >>  port_index(pin) & 1;
 	}
+	return 255;
 }
 
 void gpio_enable_interrupt_rising_edge(uint8_t pin) {
@@ -135,7 +138,7 @@ void gpio_enable_interrupt_rising_edge(uint8_t pin) {
 
 LPC_GPIO_TypeDef* select_LPC_GPIO(uint8_t pin) {
 	uint8_t port = mbed_pin_to_port_lookup[pin];
-	return LPC_GPIO_lookup[ port / 100 ];
+	return (LPC_GPIO_TypeDef*) LPC_GPIO_lookup[ port / 100 ];
 }
 
 uint8_t port_index(uint8_t pin) {
