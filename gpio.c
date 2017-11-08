@@ -6,6 +6,19 @@
  */
 #include "gpio.h"
 
+
+//Different modes for pins
+const uint8_t GPIO_PINMODE_PULLUP = 0;
+const uint8_t GPIO_PINMODE_REPEATER = 1;
+const uint8_t GPIO_PINMODE_NO_PULL = 2;
+const uint8_t GPIO_PINMODE_PULLDOWN = 3;
+
+//Different directions for pins
+const uint8_t GPIO_PINDIRECTION_INPUT = 0;
+const uint8_t GPIO_PINDIRECTION_OUTPUT = 1;
+
+
+
 static LPC_GPIO_TypeDef* select_LPC_GPIO(uint8_t pin);
 static uint8_t port_index(uint8_t pin);
 static volatile uint32_t* select_PINMODE(uint8_t pin);
@@ -151,5 +164,5 @@ uint8_t is_pin_valid(uint8_t pin) {
 }
 
 uint8_t is_pin_output(uint8_t pin) {
-	return get_direction(pin) == 1;
+	return gpio_get_direction(pin) == 1;
 }

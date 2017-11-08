@@ -11,12 +11,11 @@
 #include "gpio.h"
 
 //pinnames
-const uint8_t TRIGPIN = 21;
-const uint8_t ECHOPIN = 10;
-
-uint16_t distance;
+extern const uint8_t TRIGPIN;
+extern const uint8_t ECHOPIN;
 
 void distance_sensor_init();
+void distance_sensor_update_distance_cm();
 uint16_t distance_sensor_get_distance_cm();
 
 #endif /* DISTANCE_SENSOR_H_ */

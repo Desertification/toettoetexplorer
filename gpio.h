@@ -11,14 +11,14 @@
 #include "LPC17xx.h"
 
 //Different modes for pins
-const uint8_t GPIO_PINMODE_PULLUP = 0;
-const uint8_t GPIO_PINMODE_REPEATER = 1;
-const uint8_t GPIO_PINMODE_NO_PULL = 2;
-const uint8_t GPIO_PINMODE_PULLDOWN = 3;
+extern const uint8_t GPIO_PINMODE_PULLUP;
+extern const uint8_t GPIO_PINMODE_REPEATER;
+extern const uint8_t GPIO_PINMODE_NO_PULL;
+extern const uint8_t GPIO_PINMODE_PULLDOWN;
 
 //Different directions for pins
-const uint8_t GPIO_PINDIRECTION_INPUT = 0;
-const uint8_t GPIO_PINDIRECTION_OUTPUT = 1;
+extern const uint8_t GPIO_PINDIRECTION_INPUT;
+extern const uint8_t GPIO_PINDIRECTION_OUTPUT;
 
 void gpio_init(uint8_t pin);
 void gpio_set_mode(uint8_t pin, uint8_t mode);
