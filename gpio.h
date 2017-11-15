@@ -33,5 +33,6 @@ void gpio_toggle(uint8_t pin);
 uint8_t gpio_read(uint8_t pin);
 
 void gpio_enable_interrupt_rising_edge(uint8_t pin);
+void gpio_enable_interrupt_falling_edge(uint8_t pin);
 
 #endif /* GPIO_H_ */
