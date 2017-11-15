@@ -18,4 +18,8 @@ void distance_sensor_init();
 void distance_sensor_update_distance_cm();
 uint16_t distance_sensor_get_distance_cm();
 
+void send_pulse();
+void wait_for_echo();
+void receive_echo();
+
 #endif /* DISTANCE_SENSOR_H_ */
