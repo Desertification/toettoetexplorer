@@ -116,9 +116,23 @@ void gpio_clear(uint8_t pin) {
 void gpio_toggle(uint8_t pin) {
 	if ( is_pin_valid(pin) ) {
 		uint8_t current = gpio_read(pin);
-		if (current) { gpio_clear(pin); }
+		if (current) {
+			gpio_clear(pin);
+		}
+		else {
+			gpio_set(pin);
+		}
+	}
+}
 
-		else { gpio_set(pin); }
+void gpio_write(uint8_t pin, uint8_t b){
+	switch (b) {
+		case 0:
+			gpio_clear(pin);
+			break;
+		default:
+			gpio_set(pin);
+			break;
 	}
 }
 
