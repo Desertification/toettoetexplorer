@@ -150,7 +150,7 @@ static uint8_t find_closest_fractional_divider_index(float frest);
 static void enable_divisor_latch_access(uint8_t index);
 static void disable_divisor_latch_access(uint8_t index);
 
-static void config_divisor_latches(uint16_t dl, uint8_t divaddval, uint8_t mulval);
+static void config_divisor_latches(uint8_t index, uint16_t dl, uint8_t divaddval, uint8_t mulval);
 
 //====================== global functions ==========================//
 
@@ -197,7 +197,7 @@ void uart_set_baud(uart_device_t device, uint32_t baud){
 		mulval = fractional_divider_mulval[fd_index];
 	}
 
-	config_divisor_latches((uint16_t) dlest, divaddval, mulval);
+	config_divisor_latches(index, (uint16_t) dlest, divaddval, mulval);
 }
 
 /**
@@ -545,11 +545,11 @@ static void disable_divisor_latch_access(uint8_t index){
 /**
  * Configure the dlm, dll and fdr registers
  */
-static void config_divisor_latches(uint16_t dl, uint8_t divaddval, uint8_t mulval){
+static void config_divisor_latches(uint8_t index ,uint16_t dl, uint8_t divaddval, uint8_t mulval){
 	enable_divisor_latch_access(index);
 
-	*dlm[index] = (uint8_t) i_dlest >> 8;
-	*dll[index] = (uint8_t) i_dlest & 0xff;
+	*dlm[index] = (uint8_t) dl >> 8;
+	*dll[index] = (uint8_t) dl & 0xff;
 	*fdr[index] = (mulval << 4) | divaddval;
 
 	disable_divisor_latch_access(index);
