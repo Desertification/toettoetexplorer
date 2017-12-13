@@ -9,14 +9,6 @@
 #define MOTOR_H_
 
 #include "LPC17xx.h"
-#include "pwm.h"
-#include "gpio.h"
-
-#define MOTOR_FORWARDS 0
-#define MOTOR_BACKWARDS 1
-
-#define MOTOR_CLOCKWISE 0
-#define MOTOR_ANTICLOCKWISE 1
 
 typedef enum motor_dir{
 	FORWARDS,

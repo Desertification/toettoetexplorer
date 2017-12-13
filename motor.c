@@ -5,6 +5,8 @@
  *      Author: thoma
  */
 #include "motor.h"
+#include "pwm.h"
+#include "gpio.h"
 
 static const uint8_t PWM_L = 23;
 static const uint8_t PWM_R = 24;
@@ -13,6 +15,8 @@ static const uint8_t DIR_L = 20;
 static const uint8_t DIR_R = 19;
 
 static uint8_t speed = 0; // track requested for when there is correction in one of the wheels so the pwm value is not the same as this
+
+//====================== global functions ======================//
 
 void motor_init(){
 	gpio_init(DIR_L);
