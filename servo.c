@@ -18,7 +18,6 @@ int8_t dutycycle_to_angle(uint8_t dutycycle);
 //====================== global functions ==========================//
 void servo_init(){
 	pwm_init(SERVO_PIN);
-	pwm_set_frequency(200);
 	servo_set_angle(0);
 }
 

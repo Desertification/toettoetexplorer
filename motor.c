@@ -26,7 +26,6 @@ void motor_init(){
 
 	pwm_set_duty_cycle(PWM_R, 0);
 
-	pwm_set_frequency(20000);
 	pwm_init(PWM_R);
 	pwm_init(PWM_L);
 }
