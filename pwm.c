@@ -20,6 +20,8 @@ static volatile uint32_t *match_lut[] = { // match register lookup table
 	&LPC_PWM1->MR4, &LPC_PWM1->MR5, &LPC_PWM1->MR6
 };
 
+//====================== forward declarations ======================//
+
 static uint8_t is_pin_valid(uint8_t pin);
 static uint8_t pin_to_index(uint8_t pin);
 
@@ -35,6 +37,8 @@ static void config_enable_counter();
 
 static void load_new_duty_cycle(uint8_t pin);
 static void load_new_period();
+
+//====================== global functions ======================//
 
 /**
  * enables the pwm on that pin
@@ -61,8 +65,24 @@ void pwm_init(uint8_t pin){
  * @param frequency Hz
  */
 void pwm_set_frequency(uint32_t frequency){
+	// todo more DRY solution
+	uint8_t d21 = pwm_get_duty_cycle(21);
+	uint8_t d22 = pwm_get_duty_cycle(22);
+	uint8_t d23 = pwm_get_duty_cycle(23);
+	uint8_t d24 = pwm_get_duty_cycle(24);
+	uint8_t d25 = pwm_get_duty_cycle(25);
+	uint8_t d26 = pwm_get_duty_cycle(26);
+
 	LPC_PWM1->MR0 = pclk_freq / frequency;
 	load_new_period();
+
+	// todo more DRY solution
+	pwm_set_duty_cycle(21, d21);
+	pwm_set_duty_cycle(22, d22);
+	pwm_set_duty_cycle(23, d23);
+	pwm_set_duty_cycle(24, d24);
+	pwm_set_duty_cycle(25, d25);
+	pwm_set_duty_cycle(26, d26);
 }
 
 /**
@@ -107,6 +127,7 @@ uint8_t pwm_get_duty_cycle(uint8_t pin){
 }
 
 //====================== static functions ======================//
+
 /**
  * checks if the pin can function as pwm
  */
@@ -159,7 +180,7 @@ void config_power_ctrl_pwm(){
 static void config_pinmode_none(uint8_t pin){
 	uint8_t index = pin_to_index(pin) << 1; // 2 bits are reserved in the register per pin
 
-	LPC_PINCON->PINMODE4  &= ~(3 << index); // clear to 00
+	LPC_PINCON->PINMODE4 &= ~(3 << index); // clear to 00
 	LPC_PINCON->PINMODE4 |=  (2 << index); // set to 10
 }
 
