@@ -150,6 +150,13 @@ void gpio_enable_interrupt_rising_edge(uint8_t pin) {
 	}
 }
 
+void gpio_enable_interrupt_falling_edge(uint8_t pin) {
+	uint8_t port = mbed_pin_to_port_lookup[pin];
+	if ( port >= 0 && port < 100) {
+		LPC_GPIOINT->IO0IntEnF |= 1 << port_index(pin);
+	}
+}
+
 LPC_GPIO_TypeDef* select_LPC_GPIO(uint8_t pin) {
 	uint8_t port = mbed_pin_to_port_lookup[pin];
 	return (LPC_GPIO_TypeDef*) LPC_GPIO_lookup[ port / 100 ];
