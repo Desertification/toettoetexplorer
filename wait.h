@@ -10,7 +10,7 @@
 
 #include "LPC17xx.h"
 
-void wait_10us(uint16_t microseconds);
-void wait_ms(uint16_t milliseconds);
+void wait_10us(uint16_t amount);
+void wait_ms(uint16_t amount);
 
 #endif /* WAIT_H_ */
