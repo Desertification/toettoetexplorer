@@ -13,8 +13,8 @@
  */
 
 #include "pwm.h"
+#include "clock.h"
 
-static uint32_t pclk_freq = 96000000/4; // default for pwm
 static volatile uint32_t *match_lut[] = { // match register lookup table
 	&LPC_PWM1->MR1, &LPC_PWM1->MR2, &LPC_PWM1->MR3,
 	&LPC_PWM1->MR4, &LPC_PWM1->MR5, &LPC_PWM1->MR6
@@ -28,6 +28,8 @@ static uint8_t pin_to_index(uint8_t pin);
 static void config_pinsel_pwm(uint8_t pin);
 static void config_power_ctrl_pwm();
 static void config_pinmode_none(uint8_t pin);
+static void config_pclock_pwm();
+static uint32_t get_peripheral_clock();
 
 static void config_enable_pwm_output(uint8_t pin);
 static void config_single_edge(uint8_t pin);
@@ -50,6 +52,7 @@ void pwm_init(uint8_t pin){
 		config_power_ctrl_pwm();
 		config_pinmode_none(pin);
 		config_pinsel_pwm(pin);
+		config_pclock_pwm();
 
 		config_enable_pwm_output(pin);
 		config_single_edge(pin);
@@ -65,24 +68,9 @@ void pwm_init(uint8_t pin){
  * @param frequency Hz
  */
 void pwm_set_frequency(uint32_t frequency){
-	// todo more DRY solution
-	uint8_t d21 = pwm_get_duty_cycle(21);
-	uint8_t d22 = pwm_get_duty_cycle(22);
-	uint8_t d23 = pwm_get_duty_cycle(23);
-	uint8_t d24 = pwm_get_duty_cycle(24);
-	uint8_t d25 = pwm_get_duty_cycle(25);
-	uint8_t d26 = pwm_get_duty_cycle(26);
-
-	LPC_PWM1->MR0 = pclk_freq / frequency;
+	uint32_t pclk = get_peripheral_clock();
+	LPC_PWM1->MR0 = pclk / frequency;
 	load_new_period();
-
-	// todo more DRY solution
-	pwm_set_duty_cycle(21, d21);
-	pwm_set_duty_cycle(22, d22);
-	pwm_set_duty_cycle(23, d23);
-	pwm_set_duty_cycle(24, d24);
-	pwm_set_duty_cycle(25, d25);
-	pwm_set_duty_cycle(26, d26);
 }
 
 /**
@@ -91,7 +79,8 @@ void pwm_set_frequency(uint32_t frequency){
  * @return Hz
  */
 uint32_t pwm_get_frequency(){
-	return pclk_freq / LPC_PWM1->MR0;
+	uint32_t pclk = get_peripheral_clock();
+	return pclk / LPC_PWM1->MR0;
 }
 
 /**
@@ -103,8 +92,9 @@ uint32_t pwm_get_frequency(){
 void pwm_set_duty_cycle(uint8_t pin, uint8_t value){
 	if (is_pin_valid(pin)){
 		uint8_t index = pin_to_index(pin);
+		uint32_t pclk = get_peripheral_clock();
 		double percentage = value/255.0;
-		uint32_t match_value = ((pclk_freq * percentage) / pwm_get_frequency());
+		uint32_t match_value = ((pclk * percentage) / pwm_get_frequency());
 		*match_lut[index] = match_value;
 		load_new_duty_cycle(pin);
 	}
@@ -119,8 +109,9 @@ void pwm_set_duty_cycle(uint8_t pin, uint8_t value){
 uint8_t pwm_get_duty_cycle(uint8_t pin){
 	if (is_pin_valid(pin)){
 		uint8_t index = pin_to_index(pin);
+		uint32_t pclk = get_peripheral_clock();
 		uint32_t match_value = *match_lut[index];
-		return (uint32_t) ((match_value * pwm_get_frequency() * 255.0) / pclk_freq);
+		return (uint32_t) ((match_value * pwm_get_frequency() * 255.0) / pclk);
 	} else {
 		return 0;
 	}
@@ -237,5 +228,37 @@ static void load_new_duty_cycle(uint8_t pin){
  */
 static void load_new_period(){
 	LPC_PWM1->LER |= 1;
+}
+
+/**
+ * set peripheral clock for pwm1 to clk/4
+ */
+static void config_pclock_pwm(){
+	LPC_SC->PCLKSEL0 &= ~(3 << 12);
+}
+
+/**
+ * returns the peripheral clock for pwm1
+ */
+static uint32_t get_peripheral_clock(){
+	uint8_t config = (LPC_SC->PCLKSEL0 & (3 << 12)) >> 12;
+
+	uint8_t divider;
+	switch (config) {
+		case 1:
+			divider = 1;
+			break;
+		case 2:
+			divider = 2;
+			break;
+		case 3:
+			divider = 8;
+			break;
+		case 0:
+		default:
+			divider = 4;
+			break;
+	}
+	return CLOCKFREQ / divider;
 }
 
