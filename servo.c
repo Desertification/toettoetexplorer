@@ -7,6 +7,7 @@
 
 #include "servo.h"
 #include "pwm.h"
+#include "wait.h"
 
 static const uint8_t SERVO_PIN = 22;
 
@@ -24,6 +25,8 @@ void servo_init(){
 void servo_set_angle(int8_t angle){
 	uint8_t dutycycle = angle_to_duty_cycle(angle);
 	pwm_set_duty_cycle(SERVO_PIN, dutycycle);
+	wait_ms(20); // send a few pulses because one pulse is not enough for large changes
+	pwm_set_duty_cycle(SERVO_PIN, 0);
 }
 
 int8_t servo_get_angle(){
