@@ -128,6 +128,8 @@ static volatile uint8_t *fdr[] = {
 		&LPC_UART0->FDR, (volatile uint8_t *) &LPC_UART1->FDR, &LPC_UART2->FDR, &LPC_UART3->FDR
 };
 
+static uint32_t last_baudrate[] = {0, 0, 0, 0};
+
 //====================== forward declarations ======================//
 
 static uint8_t device_to_index(uart_device_t device);
@@ -208,7 +210,8 @@ void uart_set_baud(uart_device_t device, uint32_t baud){
  */
 uint8_t uart_get_baud(uart_device_t device){
 	uint8_t index = device_to_index(device);
-	//todo
+	//todo calculate current baudrate from register status
+	return last_baudrate[index];
 }
 
 /**
