@@ -14,12 +14,17 @@
 extern const uint8_t TRIGPIN;
 extern const uint8_t ECHOPIN;
 
+/**
+ * Initialises the distance sensor
+ */
 void distance_sensor_init();
-void distance_sensor_update_distance_cm();
+
+/**
+ * returns the current distance measured by the sensor
+ *
+ * @return current distance (cm)
+ */
 uint16_t distance_sensor_get_distance_cm();
 
-void send_pulse();
-void wait_for_echo();
-void receive_echo();
 
 #endif /* DISTANCE_SENSOR_H_ */
