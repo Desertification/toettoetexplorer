@@ -144,14 +144,14 @@ static void drive(){
 static void look(){
 	servo_set_angle(-90);
 	wait_ms(1000);
-	uint16_t distance_left = 0; // todo get distance from sensor
+	uint16_t distance_left = distance_sensor_get_distance_cm();
 
 	servo_set_angle(0);
 	wait_ms(1000);
 
 	servo_set_angle(90);
 	wait_ms(1000);
-	uint16_t distance_right = 0; // todo get distance from sensor
+	uint16_t distance_right = distance_sensor_get_distance_cm();
 
 	servo_set_angle(0);
 
