@@ -8,6 +8,7 @@
 #include "init.h"
 #include "pwm.h"
 #include "uart.h"
+#include "lcd.h"
 
 /**
  * Initializes hardware with shared resources or properties
@@ -20,4 +21,7 @@ void init_hardware(){
 	uart_set_baud(UART0, 115200);
 	uart_set_parity(UART0, NONE);
 	uart_set_data_bits(UART0, EIGHT);
+
+	// init lcd so this does not need to be repeated in the display mid layer
+	lcd_init();
 }
