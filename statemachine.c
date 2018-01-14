@@ -14,6 +14,7 @@
 #include "servo.h"
 #include "distance_sensor.h"
 #include "serial.h"
+#include "display.h"
 
 
 static state_t next_state;
@@ -102,9 +103,12 @@ static void init(){
 	//for (uint8_t i = 0; i < sizeof(str); ++i) {
 	//	uart_putc(UART0, (char) str[i]);
 	//}
+	display_cls();
+	display_printf(str);
 	serial_printf(str);
 
 	wait_ms(5000);
+	display_cls();
 	statemachine_set(DRIVE);
 }
 
