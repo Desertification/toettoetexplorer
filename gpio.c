@@ -7,7 +7,7 @@
 #include "gpio.h"
 
 
-//Different modes for pins
+//Different pin modes
 const uint8_t GPIO_PINMODE_PULLUP = 0;
 const uint8_t GPIO_PINMODE_REPEATER = 1;
 const uint8_t GPIO_PINMODE_NO_PULL = 2;
@@ -18,7 +18,7 @@ const uint8_t GPIO_PINDIRECTION_INPUT = 0;
 const uint8_t GPIO_PINDIRECTION_OUTPUT = 1;
 
 
-
+//forward declarations
 static LPC_GPIO_TypeDef* select_LPC_GPIO(uint8_t pin);
 static uint8_t port_index(uint8_t pin);
 static volatile uint32_t* select_PINMODE(uint8_t pin);
@@ -39,6 +39,11 @@ static const uint8_t mbed_pin_to_port_lookup[31] = {
 	130, 131, 205, 204, 203, 202, 201, 200, 11, 10, 5, 4 //pin 19-30
 };
 
+/**
+ * initializes mbed pin as GPIO
+ *
+ * @param pin: mbed pin to initialize
+ */
 void gpio_init(uint8_t pin) {
 	if ( is_pin_valid(pin) ) {
 		gpio_set_mode(pin, GPIO_PINMODE_PULLUP);
@@ -47,11 +52,11 @@ void gpio_init(uint8_t pin) {
 	}
 }
 
-/* pinmodes
- * 0 = pull-up resistor
- * 1 = repeater mode
- * 2 = neither pull-up or pull-down
- * 3 = pull-down
+/**
+ * set GPIO pinmode for a mbed pin
+ *
+ * @param pin: mbed pin
+ * @param mode: choose pin mode
  */
 void gpio_set_mode(uint8_t pin, uint8_t mode) {
 	if ( is_pin_valid(pin) ) {
@@ -67,6 +72,12 @@ void gpio_set_mode(uint8_t pin, uint8_t mode) {
 	}
 }
 
+/**
+ * get GPIO pinmode from a mbed pin
+ *
+ * @param pin: mbed pin
+ * @return pinmode value or value 255 when invalid pin was entered
+ */
 uint8_t gpio_get_mode(uint8_t pin) {
 	if ( is_pin_valid(pin) ) {
 		uint8_t shift;
@@ -81,8 +92,11 @@ uint8_t gpio_get_mode(uint8_t pin) {
 	return 255;
 }
 
-//0 is input
-//1 is output
+/**
+ * initializes GPIO direction for mbed pin
+ *
+ * @param pin: mbed pin to initialize GPIO direction
+ */
 void gpio_set_direction(uint8_t pin, uint8_t direction) {
 	if ( is_pin_valid(pin) ) {
 		if ( direction ) {
@@ -94,6 +108,12 @@ void gpio_set_direction(uint8_t pin, uint8_t direction) {
 	}
 }
 
+/**
+ * get GPIO direction from mbed pin
+ *
+ * @param pin: mbed pin to get GPIO direction from
+ * @return pin direction value or 255 when invalid pin was entered
+ */
 uint8_t gpio_get_direction(uint8_t pin) {
 	if ( is_pin_valid(pin) ) {
 		return (select_LPC_GPIO(pin)->FIODIR >> port_index(pin)) & 1;
@@ -101,18 +121,33 @@ uint8_t gpio_get_direction(uint8_t pin) {
 	return 255;
 }
 
+/**
+ * set mbed pin high
+ *
+ * @param pin: mbed pin to set
+ */
 void gpio_set(uint8_t pin) {
 	if ( is_pin_valid(pin) && is_pin_output(pin) ) {
 		select_LPC_GPIO(pin)->FIOSET |= 1 << port_index(pin);
 	}
 }
 
+/**
+ * set mbed pin low
+ *
+ * @param pin: pin to clear
+ */
 void gpio_clear(uint8_t pin) {
 	if ( is_pin_valid(pin) && is_pin_output(pin) ) {
 		select_LPC_GPIO(pin)->FIOCLR |= 1 << port_index(pin);
 	}
 }
 
+/**
+ * toggle mbed pin
+ *
+ * @param pin: mbed pin to toggle
+ */
 void gpio_toggle(uint8_t pin) {
 	if ( is_pin_valid(pin) ) {
 		uint8_t current = gpio_read(pin);
@@ -125,8 +160,14 @@ void gpio_toggle(uint8_t pin) {
 	}
 }
 
-void gpio_write(uint8_t pin, uint8_t b){
-	switch (b) {
+/**
+ * writes a value to mbed pin
+ *
+ * @param pin: mbed pin to write value to
+ * @param value: value to write to pin (0 = low, anything else is high)
+ */
+void gpio_write(uint8_t pin, uint8_t value){
+	switch (value) {
 		case 0:
 			gpio_clear(pin);
 			break;
@@ -136,6 +177,11 @@ void gpio_write(uint8_t pin, uint8_t b){
 	}
 }
 
+/**
+ * read GPIO value from mbed pin
+ *
+ * @param pin: mbed pin to read from
+ */
 uint8_t gpio_read(uint8_t pin) {
 	if ( is_pin_valid(pin) ) {
 		return select_LPC_GPIO(pin)->FIOPIN >>  port_index(pin) & 1;
@@ -143,6 +189,11 @@ uint8_t gpio_read(uint8_t pin) {
 	return 255;
 }
 
+/**
+ * enables rising edge interrupt on mbed pin
+ *
+ * @param pin: mbed pin
+ */
 void gpio_enable_interrupt_rising_edge(uint8_t pin) {
 	uint8_t port = mbed_pin_to_port_lookup[pin];
 	if ( port >= 0 && port < 100) {
@@ -150,6 +201,11 @@ void gpio_enable_interrupt_rising_edge(uint8_t pin) {
 	}
 }
 
+/**
+ * enables falling edge interrupt on mbed pin
+ *
+ * @param pin: mbed pin
+ */
 void gpio_enable_interrupt_falling_edge(uint8_t pin) {
 	uint8_t port = mbed_pin_to_port_lookup[pin];
 	if ( port >= 0 && port < 100) {
@@ -157,15 +213,33 @@ void gpio_enable_interrupt_falling_edge(uint8_t pin) {
 	}
 }
 
+/**
+ * uses mbed pin to select the right GPIO register to use in functions
+ *
+ * @param pin: mbed pin
+ * @return the correct GPIO register
+ */
 LPC_GPIO_TypeDef* select_LPC_GPIO(uint8_t pin) {
 	uint8_t port = mbed_pin_to_port_lookup[pin];
 	return (LPC_GPIO_TypeDef*) LPC_GPIO_lookup[ port / 100 ];
 }
 
+/**
+ * links the given mbed pin to his internal port number
+ *
+ * @param pin: mbed pin
+ * @return the portnumber for the given pin
+ */
 uint8_t port_index(uint8_t pin) {
 	return (mbed_pin_to_port_lookup[pin] % 100);
 }
 
+/**
+ * Select right PINMODE register for a given pin.
+ *
+ * @param pin: mbed pin
+ * @return the right PINMODE register
+ */
 volatile uint32_t* select_PINMODE(uint8_t pin) {
 	uint8_t port = mbed_pin_to_port_lookup[pin];
 	if ( port >= 0 && port < 16 ) {
@@ -183,10 +257,22 @@ volatile uint32_t* select_PINMODE(uint8_t pin) {
 	else { return 0;}
 }
 
+/**
+ * validates if the requested pin is allowed to be accessed/changed (see top for valid pins)
+ *
+ * @param pin: mbed pin
+ * @return true = valid pin, false = invalid pin
+ */
 uint8_t is_pin_valid(uint8_t pin) {
 	return pin >= 5 && pin <= 30;
 }
 
+/**
+ * return is pin is output or not
+ *
+ * @param pin: mbed pin
+ * @return true = output, false = input
+ */
 uint8_t is_pin_output(uint8_t pin) {
 	return gpio_get_direction(pin) == 1;
 }
