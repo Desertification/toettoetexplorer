@@ -12,6 +12,8 @@
 #include "buzzer.h"
 #include "wait.h"
 #include "servo.h"
+#include "distance_sensor.h"
+#include "serial.h"
 
 
 static state_t next_state;
@@ -90,19 +92,17 @@ static void init(){
 	motor_set_speed(0);
 	motor_drive(FORWARDS);
 
-	uart_init(UART0);
-	uart_set_baud(UART0, 115200);
-	uart_set_parity(UART0, NONE);
-	uart_set_data_bits(UART0, EIGHT);
-
 	servo_init();
 
 	buzzer_init();
 
+	distance_sensor_init();
+
 	char str[] = {"device init, wait 5sec\n"};
-	for (uint8_t i = 0; i < sizeof(str); ++i) {
-		uart_putc(UART0, (char) str[i]);
-	}
+	//for (uint8_t i = 0; i < sizeof(str); ++i) {
+	//	uart_putc(UART0, (char) str[i]);
+	//}
+	serial_printf(str);
 
 	wait_ms(5000);
 	statemachine_set(DRIVE);
@@ -113,7 +113,7 @@ static void init(){
  */
 static void drive(){
 	motor_drive(FORWARDS);
-	int16_t distance = 0; // todo get distance from sensor
+	int16_t distance = distance_sensor_get_distance_cm();
 
 	if (distance < 10){
 		motor_set_speed(0);
