@@ -35,8 +35,6 @@ void servo_init(){
 void servo_set_angle(int8_t angle){
 	uint8_t dutycycle = angle_to_duty_cycle(angle);
 	pwm_set_duty_cycle(SERVO_PIN, dutycycle);
-	wait_ms(20); // send a few pulses because one pulse is not enough for large changes
-	pwm_set_duty_cycle(SERVO_PIN, 0);
 	last_angle = angle;
 }
 
@@ -46,8 +44,8 @@ void servo_set_angle(int8_t angle){
  * @return the last set angle of the servo (-90 to 90)
  */
 int8_t servo_get_angle(){
-	// impossible to get actual current value
-	return last_angle;
+	uint8_t duty_cycle = pwm_get_duty_cycle(SERVO_PIN);
+	return duty_cycle_to_angle(duty_cycle);
 }
 
 //====================== static functions ==========================//
